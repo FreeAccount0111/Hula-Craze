@@ -5,27 +5,9 @@ namespace Data
     [Serializable]
     public class UserData
     {
-        private int _currentCoin;
-        
-        public int CurrentCoin
-        {
-            get => _currentCoin;
-            set => _currentCoin = value;
-        }
-
-        public UserData()
-        {
-            _currentCoin = 5000;
-        }
-
-        public void IncreaseCoin(int amount)
-        {
-            _currentCoin += amount;
-        }
-
-        public void ReductionCoin(int amount)
-        {
-            _currentCoin -= amount;
-        }
+        public int currentCoin = 50000;
+        public int currentBet = 100;
+        public int currentLine = 1;
+        public int freeSpins = 0;
     }
 }

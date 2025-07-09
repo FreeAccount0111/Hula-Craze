@@ -11,13 +11,17 @@ namespace Gameplay.Controller
         public static SlotMachineController Instance;
 
         [SerializeField] private PayoutController payoutController;
+        [SerializeField] private LineController lineController;
+        
         [SerializeField] private List<ReelController> reels = new List<ReelController>();
+        private readonly CellController[,] _board = new CellController[4,5];
         [SerializeField] private bool[] checkEndSpin;
         [SerializeField] private float speedRoll;
         [SerializeField] private int countRoll;
         [SerializeField] private int indexLastCount;
 
-        private Coroutine _coroutine;
+        private Coroutine _coroutineRoll;
+        private Coroutine _coroutineWin;
 
         private bool _isRolling;
 
@@ -25,24 +29,22 @@ namespace Gameplay.Controller
         {
             SlotMachineController.Instance = this;
         }
-
         IEnumerator Start()
         {
             yield return new WaitUntil(() => ObjectPool.Instance != null);
             FillBoard();
             checkEndSpin = new bool[reels.Count];
         }
-
         private void OnEnable()
         {
             GameEvent.OnSpin += Roll;
+            GameEvent.OnShowLineWin += ShowWin;
         }
-
         private void OnDisable()
         {
             GameEvent.OnSpin -= Roll;
+            GameEvent.OnShowLineWin -= ShowWin;
         }
-
         private void FillBoard()
         {
             foreach (var reel in reels)
@@ -50,19 +52,18 @@ namespace Gameplay.Controller
                 reel.FillReel();
             }
         }
-
         private void Roll()
         {
             if (_isRolling)
                 return;
 
+            StopShowWin();
             _isRolling = true;
             for (int i = 0; i < reels.Count; i++)
                 checkEndSpin[i] = false;
             
-            _coroutine = StartCoroutine(RollCoroutine());
+            _coroutineRoll = StartCoroutine(RollCoroutine());
         }
-
         IEnumerator RollCoroutine()
         {
             float amount = 0;
@@ -104,12 +105,59 @@ namespace Gameplay.Controller
             
                 yield return null;
             }
-        
-            foreach (var reel in reels)
-                reel.UpdatePositionReel(0);
             
             _isRolling = false;
-            payoutController.CheckResult(reels);
+            foreach (var reel in reels)
+            {
+                for (int i = 0; i < reels.Count; i++)
+                for (int j = 0; j < 4; j++)
+                    _board[j, i] = reels[i].GetCellByIndex(j + 1);
+            }
+            
+            payoutController.CheckResult(_board);
+        }
+
+        private void ShowWin(List<int> indexLine, List<List<(int x, int y)>> lineWin)
+        {
+            _coroutineWin = StartCoroutine(ShowWinCoroutine(indexLine, lineWin));
+        }
+
+        public void StopShowWin()
+        {
+            if (_coroutineWin != null)
+            {
+                StopCoroutine(_coroutineWin);
+            }
+        }
+
+        IEnumerator ShowWinCoroutine(List<int> indexLine, List<List<(int x, int y)>> lineWin)
+        {
+            int index = 0;
+            
+            yield return new WaitForSeconds(0.5f);
+            while (true)
+            {
+                lineController.ShowTargetLine(indexLine[index]);
+                yield return ShowLineCoroutine(lineWin[index]);
+                index = index + 1 < lineWin.Count ? index + 1 : 0;
+            }
+        }
+
+        IEnumerator ShowLineCoroutine(List<(int x, int y)> line)
+        {
+            foreach (var l in line)
+            {
+                _board[l.x,l.y].ActiveSplash(true);
+                _board[l.x,l.y].PlayAnimation(true);
+            }
+
+            yield return new WaitForSeconds(1.5f);
+            
+            foreach (var l in line)
+            {
+                _board[l.x,l.y].ActiveSplash(false);
+                _board[l.x,l.y].PlayAnimation(false);
+            }
         }
     }
 }

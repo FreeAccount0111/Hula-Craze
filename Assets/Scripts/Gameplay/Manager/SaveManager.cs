@@ -18,7 +18,7 @@ namespace Gameplay.Manager
         {
             if (!File.Exists(SavePath))
             {
-                return null;
+                return new UserData();
             }
 
             string json = File.ReadAllText(SavePath);

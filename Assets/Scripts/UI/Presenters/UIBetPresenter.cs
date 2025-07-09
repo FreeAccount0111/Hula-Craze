@@ -1,77 +1,88 @@
 using System.Threading;
+using Data;
+using Gameplay.Controller;
 using Gameplay.Events;
+using Gameplay.Manager;
 using UI.Events;
 using UI.Interfaces;
 using UI.Models;
+using UI.Views;
 
 namespace UI.Presenters
 {
     public class UIBetPresenter
     {
-        private IBetView _view;
-        private BetModel _model;
+        private IBetView _viewBet;
+        private ILineView _viewLine;
+        private UserModel _model;
 
-        public UIBetPresenter(IBetView view, BetModel model)
+        public UIBetPresenter(IBetView viewBet, ILineView viewLine, UserModel model)
         {
-            _view = view;
+            _viewBet = viewBet;
+            _viewLine = viewLine;
             _model = model;
 
             UIBetEvent.OnIncreaseBet += IncreaseBet;
             UIBetEvent.OnReductionBet += ReductionBet;
+            UIBetEvent.OnIncreaseLine += IncreaseLine;
+            UIBetEvent.OnReductionLine += ReductionLine;
+            
             UIBetEvent.OnMaxBet += MaxBet;
             UIBetEvent.OnClickSpin += ClickSpin;
             UIBetEvent.OnSpinSuccess += SpinSuccess;
 
-            UIBetEvent.OnUpdateBet += UpdateBet;
+            UIBetEvent.OnUpdateData += UpdateData;
         }
-
         public void Unsubscribe()
         {
             UIBetEvent.OnIncreaseBet -= IncreaseBet;
             UIBetEvent.OnReductionBet -= ReductionBet;
+            UIBetEvent.OnIncreaseLine -= IncreaseLine;
+            UIBetEvent.OnReductionLine -= ReductionLine;
+            
             UIBetEvent.OnMaxBet -= MaxBet;
             UIBetEvent.OnClickSpin -= ClickSpin;
             UIBetEvent.OnSpinSuccess -= SpinSuccess;
             
-            UIBetEvent.OnUpdateBet -= UpdateBet;
+            UIBetEvent.OnUpdateData -= UpdateData;
         }
 
-        private void IncreaseBet()
+        public void Initialized() => UpdateData(_model.UserData);
+        private void IncreaseBet() => _model.IncreaseBet();
+        private void ReductionBet() => _model.ReductionBet();
+        private void IncreaseLine()
         {
-            _model.IncreaseBet();
+            _viewLine.ShowLines();
+            _model.IncreaseLine();
         }
-
-        private void ReductionBet()
+        private void ReductionLine()
         {
-            _model.ReductionBet();
+            _viewLine.ShowLines();
+            _model.ReductionLine();
         }
-
-        private void UpdateBet(int amount)
+        private void UpdateData(UserData data)
         {
-            _view.UpdateBetText(amount);
+            _viewBet.UpdateCreditText(data.currentCoin);
+            _viewBet.UpdateBetText(data.currentBet);
+            _viewBet.UpdateLineText(data.currentLine);
+            _viewLine.UpdateLine(data.currentLine);
+            _viewBet.UpdateTotalText(data.currentBet * data.currentLine);
         }
-
-        private void MaxBet()
-        {
-            _model.MaxBet();
-        }
-
-        private void ClickSpin()
-        {
-           _model.Spin();
-        }
-
+        private void MaxBet() => _model.MaxBet();
+        private void ClickSpin() => _model.Spin();
         private void SpinSuccess(bool en)
         {
             if (en)
             {
                 GameEvent.RaiseSpin();
-                _view.UpdateNotification("Good luck!!!");
+                _viewLine.HideLines();
+                _viewBet.UpdateNotification("Good luck!!!");
             }
             else
-            {
-                _view.UpdateNotification("You don't have enough money.");
-            }
+                _viewBet.UpdateNotification("You don't have enough money.");
+            
+            SaveData();
         }
+        private void SaveData() => UserManager.Instance.SaveData();
     }
 }
