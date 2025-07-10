@@ -20,10 +20,14 @@ namespace Gameplay.Controller
         [SerializeField] private int countRoll;
         [SerializeField] private int indexLastCount;
 
+        private int _betAmount;
+        private int _payline;
+
         private Coroutine _coroutineRoll;
         private Coroutine _coroutineWin;
 
         private bool _isRolling;
+        public bool CanRoll => _isRolling == false;
 
         private void Awake()
         {
@@ -38,11 +42,13 @@ namespace Gameplay.Controller
         private void OnEnable()
         {
             GameEvent.OnSpin += Roll;
+            GameEvent.OnResetRoll += ResetRoll;
             GameEvent.OnShowLineWin += ShowWin;
         }
         private void OnDisable()
         {
             GameEvent.OnSpin -= Roll;
+            GameEvent.OnResetRoll -= ResetRoll;
             GameEvent.OnShowLineWin -= ShowWin;
         }
         private void FillBoard()
@@ -52,13 +58,22 @@ namespace Gameplay.Controller
                 reel.FillReel();
             }
         }
-        private void Roll()
+
+        private void ResetRoll()
+        {
+            _isRolling = false;
+        }
+        private void Roll(int betAmount,int payline)
         {
             if (_isRolling)
                 return;
 
             StopShowWin();
+            
             _isRolling = true;
+            _betAmount = betAmount;
+            _payline = payline;
+            
             for (int i = 0; i < reels.Count; i++)
                 checkEndSpin[i] = false;
             
@@ -106,7 +121,6 @@ namespace Gameplay.Controller
                 yield return null;
             }
             
-            _isRolling = false;
             foreach (var reel in reels)
             {
                 for (int i = 0; i < reels.Count; i++)
@@ -114,7 +128,7 @@ namespace Gameplay.Controller
                     _board[j, i] = reels[i].GetCellByIndex(j + 1);
             }
             
-            payoutController.CheckResult(_board);
+            payoutController.CheckResult(_board, _betAmount, _payline);
         }
 
         private void ShowWin(List<int> indexLine, List<List<(int x, int y)>> lineWin)
@@ -127,6 +141,16 @@ namespace Gameplay.Controller
             if (_coroutineWin != null)
             {
                 StopCoroutine(_coroutineWin);
+                
+                foreach (var reel in reels)
+                {
+                    for (int i = 0; i < reels.Count; i++)
+                    for (int j = 0; j < 4; j++)
+                    {
+                        _board[j, i].ActiveSplash(false);
+                        _board[j, i].PlayAnimation(false);
+                    }
+                }
             }
         }
 

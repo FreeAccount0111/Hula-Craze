@@ -7,12 +7,12 @@ namespace UI.Component
 {
     public class WinSlot : MonoBehaviour
     {
-        [SerializeField] private Text textWin;
+        [SerializeField] protected Text textWin;
         [SerializeField] private CanvasGroup canvasGroup;
 
-        public void SetWinText(int value)
+        public void SetWinText(string s)
         {
-            textWin.text = $"You win     {FormatNumber(value)}.";
+            textWin.text = s;
         }
 
         public void Show()
@@ -21,6 +21,11 @@ namespace UI.Component
             gameObject.SetActive(true);
             //canvasGroup.DOFade(1, 0.5f).SetEase(Ease.Linear);
             transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutCirc);
+        }
+
+        public void Hide()
+        {
+            transform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InCirc).OnComplete(()=> gameObject.SetActive(false));
         }
         
         private string FormatNumber(int amount)

@@ -1,5 +1,6 @@
 using Data;
 using UI.Events;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace UI.Models
@@ -7,40 +8,43 @@ namespace UI.Models
     public class UserModel
     {
         private readonly UserData _userData;
+        private int _indexGame;
         public UserData UserData => _userData;
+        public DataBet DataBet => _userData.dataBets[_indexGame];
 
-        public UserModel(UserData data)
+        public UserModel(UserData data, int indexGame)
         {
             _userData = data;
+            _indexGame = indexGame;
         }
 
         public void IncreaseBet()
         {
-            _userData.currentBet += 100;
+            _userData.dataBets[_indexGame].currentBet += 100;
 
             UpdateValue();
         }
 
         public void IncreaseLine()
         {
-            if (_userData.currentLine + 1 <= 24)
-                _userData.currentLine += 1;
+            if (_userData.dataBets[_indexGame].currentLine + 1 <= 24)
+                _userData.dataBets[_indexGame].currentLine += 1;
 
             UpdateValue();
         }
 
         public void ReductionBet()
         {
-            if (_userData.currentBet - 100 > 0)
-                _userData.currentBet -= 100;
+            if (_userData.dataBets[_indexGame].currentBet - 100 > 0)
+                _userData.dataBets[_indexGame].currentBet -= 100;
 
             UpdateValue();
         }
 
         public void ReductionLine()
         {
-            if (_userData.currentLine - 1 > 0)
-                _userData.currentLine -= 1;
+            if (_userData.dataBets[_indexGame].currentLine - 1 > 0)
+                _userData.dataBets[_indexGame].currentLine -= 1;
 
             UpdateValue();
         }
@@ -48,7 +52,7 @@ namespace UI.Models
         public void CheckResult(int coin,int spin)
         {
             _userData.currentCoin += coin;
-            _userData.freeSpins += spin;
+            _userData.dataBets[_indexGame].freeSpins += spin;
             UpdateValue();
         }
 
@@ -56,8 +60,8 @@ namespace UI.Models
         {
             for (int i = 10; i >= 0; i--)
             {
-                _userData.currentBet = ((_userData.currentCoin / _userData.currentLine) / 100) * 100;
-                if (_userData.currentBet * _userData.currentLine <= _userData.currentCoin)
+                _userData.dataBets[_indexGame].currentBet = ((_userData.currentCoin / _userData.dataBets[_indexGame].currentLine) / 100) * 100;
+                if (_userData.dataBets[_indexGame].currentBet * _userData.dataBets[_indexGame].currentLine <= _userData.currentCoin)
                     break;
             }
 
@@ -66,17 +70,17 @@ namespace UI.Models
 
         public void Spin()
         {
-            if (_userData.freeSpins > 0)
+            if (_userData.dataBets[_indexGame].freeSpins > 0)
             {
-                _userData.freeSpins -= 1;
+                _userData.dataBets[_indexGame].freeSpins -= 1;
                 UIBetEvent.RaiseSpinSuccess(true);
                 UpdateValue();
                 return;
             }
             
-            if (_userData.currentCoin >= _userData.currentBet * _userData.currentLine)
+            if (_userData.currentCoin >= _userData.dataBets[_indexGame].currentBet * _userData.dataBets[_indexGame].currentLine)
             {
-                _userData.currentCoin -= _userData.currentBet * _userData.currentLine;
+                _userData.currentCoin -= _userData.dataBets[_indexGame].currentBet * _userData.dataBets[_indexGame].currentLine;
                 UIBetEvent.RaiseSpinSuccess(true);
             }
             else
@@ -89,7 +93,7 @@ namespace UI.Models
 
         private void UpdateValue()
         {
-           UIBetEvent.RaiseUpdateData(_userData);
+           UIBetEvent.RaiseUpdateData();
         }
     }
 }

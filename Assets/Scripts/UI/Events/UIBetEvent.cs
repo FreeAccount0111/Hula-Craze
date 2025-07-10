@@ -12,8 +12,10 @@ namespace UI.Events
         public static event Action OnReductionLine;
         public static event Action OnMaxBet;
         public static event Action OnClickSpin;
+        public static event Action OnShowHtp;
+        public static event Action OnHideHtp;
         public static event Action<int> OnUpdateWin;
-        public static event Action<UserData> OnUpdateData;
+        public static event Action OnUpdateData;
         public static event Action<bool> OnSpinSuccess;
 
         public static void RaiseIncreaseBet() => OnIncreaseBet?.Invoke();
@@ -23,7 +25,9 @@ namespace UI.Events
         public static void RaiseMaxBet() => OnMaxBet?.Invoke();
         public static void RaiseClickSpin() => OnClickSpin?.Invoke();
         public static void RaiseSpinSuccess(bool en) => OnSpinSuccess?.Invoke(en);
+        public static void RaiseShowHtp() => OnShowHtp?.Invoke();
+        public static void RaiseHideHtp() => OnHideHtp?.Invoke();
         public static void RaiseUpdateWin(int coin) => OnUpdateWin?.Invoke(coin);
-        public static void RaiseUpdateData(UserData data) => OnUpdateData?.Invoke(data);
+        public static void RaiseUpdateData() => OnUpdateData?.Invoke();
     }
 }

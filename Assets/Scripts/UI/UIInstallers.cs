@@ -13,9 +13,9 @@ namespace UI
 {
     public class UIInstallers : MonoBehaviour
     {
-        [SerializeField] private BetView betView;
+        [SerializeField] private GameObject betView;
         [SerializeField] private LineController lineCtrl;
-        [SerializeField] private WinView winView;
+        [SerializeField] private GameObject winView;
 
         private UserModel _userModel;
 

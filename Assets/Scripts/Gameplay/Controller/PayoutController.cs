@@ -13,7 +13,6 @@ namespace Gameplay.Controller
 {
     public class PayoutController : MonoBehaviour
     {
-        private UserModel _userModel;
         private readonly CellController[,] _board = new CellController[4,5];
         [SerializeField] private PayTableSo payTable;
         private readonly List<List<(int x, int y)>> _paylines = new List<List<(int, int)>>()
@@ -55,13 +54,7 @@ namespace Gameplay.Controller
         [SerializeField] private int coinPayout;
         [SerializeField] private int spinFree;
 
-        private IEnumerator Start()
-        {
-            yield return new WaitUntil(() => UserManager.Instance != null);
-            _userModel = UserManager.Instance.userModel;
-        }
-
-        public void CheckResult(CellController[,] board)
+        public void CheckResult(CellController[,] board, int betAmount, int payline)
         {
             for (int i = 0; i < 5; i++)
             for (int j = 0; j < 4; j++)
@@ -72,15 +65,15 @@ namespace Gameplay.Controller
             _indexLineWin.Clear();
             _lsLineWin.Clear();
 
-            for (int i = 0; i < _userModel.UserData.currentLine; i++)
-                CalculatorPayLine(i);
+            for (int i = 0; i < payline; i++)
+                CalculatorPayLine(i, betAmount);
             
             GameEvent.RaisePayout(coinPayout,spinFree);
             if (coinPayout > 0)
                 GameEvent.RaiseShowLineWin(_indexLineWin,_lsLineWin);
         }
 
-        private void CalculatorPayLine(int index)
+        private void CalculatorPayLine(int index, int betAmount)
         {
             for (int i = 0; i < 13; i++)
                 indexSymbol[i] = 0;
@@ -99,7 +92,7 @@ namespace Gameplay.Controller
             {
                 var amountPayout = 0;
                 for (int i = 0; i < 11; i++)
-                    amountPayout += _userModel.UserData.currentBet * (payTable.payoutEntries[i].payouts[indexSymbol[i] + indexSymbol[11]]);
+                    amountPayout += betAmount * (payTable.payoutEntries[i].payouts[indexSymbol[i] + indexSymbol[11]]);
                 if (amountPayout > 0)
                 {
                     coinPayout += amountPayout;
