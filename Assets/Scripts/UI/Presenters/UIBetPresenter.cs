@@ -67,6 +67,9 @@ namespace UI.Presenters
             _viewBet.UpdateLineText(data.currentLine);
             _viewLine.UpdateLine(data.currentLine);
             _viewBet.UpdateTotalText(data.currentBet * data.currentLine);
+            _viewBet.UpdateSpinText(data.freeSpins);
+
+            _viewBet.UpdateSpin(_model.UserData.freeSpins > 0);
         }
         private void MaxBet() => _model.MaxBet();
         private void ClickSpin() => _model.Spin();

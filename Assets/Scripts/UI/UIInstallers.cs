@@ -36,6 +36,7 @@ namespace UI
         private void OnDestroy()
         {
             _uiBetPresenter.Unsubscribe();
+            _uiWinPresenter.Unsubscribe();
         }
     }
 }

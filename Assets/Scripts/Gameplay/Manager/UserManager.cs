@@ -17,8 +17,8 @@ namespace Gameplay.Manager
         {
             Instance = this;
 
-            //userData = new UserData();
-            userData = saveManager.LoadPlayer();
+            userData = new UserData();
+            //userData = saveManager.LoadPlayer();
             userModel = new UserModel(userData);
         }
 

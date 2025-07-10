@@ -66,6 +66,14 @@ namespace UI.Models
 
         public void Spin()
         {
+            if (_userData.freeSpins > 0)
+            {
+                _userData.freeSpins -= 1;
+                UIBetEvent.RaiseSpinSuccess(true);
+                UpdateValue();
+                return;
+            }
+            
             if (_userData.currentCoin >= _userData.currentBet * _userData.currentLine)
             {
                 _userData.currentCoin -= _userData.currentBet * _userData.currentLine;

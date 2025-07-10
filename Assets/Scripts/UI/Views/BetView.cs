@@ -14,6 +14,7 @@ namespace UI.Views
         [SerializeField] private TMP_Text textBet;
         [SerializeField] private TMP_Text textLine;
         [SerializeField] private TMP_Text textTotal;
+        [SerializeField] private TMP_Text textSpin;
         [SerializeField] private TMP_Text textWin;
         [SerializeField] private TMP_Text textNotification;
         
@@ -22,6 +23,7 @@ namespace UI.Views
         [SerializeField] private Button btnIncreaseLine;
         [SerializeField] private Button btnReductionLine;
         [SerializeField] private Button btnSpin;
+        [SerializeField] private Button btnSpinFree;
         [SerializeField] private Button btnHtp;
         [SerializeField] private Button btnMaxBet;
 
@@ -33,6 +35,7 @@ namespace UI.Views
             btnReductionLine.onClick.AddListener(UIBetEvent.RaiseReductionLine);
             btnMaxBet.onClick.AddListener(UIBetEvent.RaiseMaxBet);
             btnSpin.onClick.AddListener(UIBetEvent.RaiseClickSpin);
+            btnSpinFree.onClick.AddListener(UIBetEvent.RaiseClickSpin);
         }
 
         public void UpdateTotalText(int total)
@@ -43,6 +46,20 @@ namespace UI.Views
         public void UpdateCreditText(int credit)
         {
             textCredit.text = FormatNumber(credit);
+        }
+        public void UpdateSpin(bool en)
+        {
+            btnIncreaseBet.gameObject.SetActive(!en);
+            btnReductionBet.gameObject.SetActive(!en);
+            btnIncreaseLine.gameObject.SetActive(!en);
+            btnReductionLine.gameObject.SetActive(!en);
+            btnSpin.gameObject.SetActive(!en);
+            btnSpinFree.gameObject.SetActive(en);
+        }
+
+        public void UpdateSpinText(int spin)
+        {
+            textSpin.text = spin.ToString();
         }
 
         public void UpdateWinText(int amount)
