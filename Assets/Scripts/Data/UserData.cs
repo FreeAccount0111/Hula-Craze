@@ -14,6 +14,8 @@ namespace Data
     public class UserData
     {
         public int currentCoin = 50000;
+        public int currentLevel = 0;
+        public int currentExp = 0;
         public List<DataBet> dataBets = new List<DataBet>()
         {
             new DataBet(),

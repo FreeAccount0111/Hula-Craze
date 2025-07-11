@@ -11,22 +11,31 @@ namespace Gameplay.Manager
         public static UserManager Instance;
         [SerializeField] private SaveManager saveManager;
         [SerializeField] private UserData userData;
-        [SerializeField] private int indexGame;
-        
-        public UserModel userModel;
 
         private void Awake()
         {
-            Instance = this;
+            if (Instance == null)
+            {
+                Instance = this;
 
-            //userData = new UserData();
-            userData = saveManager.LoadPlayer();
-            userModel = new UserModel(userData, indexGame);
+                //userData = new UserData();
+                userData = saveManager.LoadPlayer();
+                DontDestroyOnLoad(this.gameObject);
+            }
+            else
+            {
+                Destroy(this.gameObject);
+            }
+        }
+
+        public UserModel GetUserModel(int index)
+        {
+            return new UserModel(userData, index);
         }
 
         public void SaveData()
         {
-            saveManager.SavePlayer(userData, indexGame);
+            saveManager.SavePlayer(userData);
         }
     }
 }

@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace ScriptObject
 {
-    [System.Serializable]
-    public class SymbolPayoutEntry
+    [Serializable]
+    public struct SymbolPayoutEntry
     {
         public SymbolType symbol;
         public int[] payouts;

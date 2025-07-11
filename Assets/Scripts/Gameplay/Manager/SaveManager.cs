@@ -8,7 +8,7 @@ namespace Gameplay.Manager
     {
         private string SavePath => Application.persistentDataPath + "/player data.json";
 
-        public void SavePlayer(UserData data,int indexGame)
+        public void SavePlayer(UserData data)
         {
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(SavePath, json);

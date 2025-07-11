@@ -56,6 +56,16 @@ namespace UI.Models
             UpdateValue();
         }
 
+        public void IncreaseExp()
+        {
+            _userData.currentExp += 1;
+            if (_userData.currentExp >= _userData.currentLevel * 10)
+            {
+                _userData.currentExp = 0;
+                _userData.currentLevel += 1;
+            }
+        }
+
         public void MaxBet()
         {
             for (int i = 10; i >= 0; i--)
@@ -73,6 +83,7 @@ namespace UI.Models
             if (_userData.dataBets[_indexGame].freeSpins > 0)
             {
                 _userData.dataBets[_indexGame].freeSpins -= 1;
+                IncreaseExp();
                 UIBetEvent.RaiseSpinSuccess(true);
                 UpdateValue();
                 return;
@@ -81,6 +92,7 @@ namespace UI.Models
             if (_userData.currentCoin >= _userData.dataBets[_indexGame].currentBet * _userData.dataBets[_indexGame].currentLine)
             {
                 _userData.currentCoin -= _userData.dataBets[_indexGame].currentBet * _userData.dataBets[_indexGame].currentLine;
+                IncreaseExp();
                 UIBetEvent.RaiseSpinSuccess(true);
             }
             else
